@@ -17,8 +17,35 @@ FILTERS = {
 }
 
 IS_KULKARNI_EXPANSION_LABELS = [
+  "Arab_Christian_(Public)",
+  "Bangladeshi_(Public)",
+  "Bengali_(Sri_Preston_Kulkarni)",
+  "Cantonese_(Public)",
+  "Chinese_(Public)",
+  "Family_(Sri_Preston_Kulkarni)",
+  "Filipino_(Public)",
+  "Gujarati_(Sri_Preston_Kulkarni)",
+  "Hindi_(Sri_Preston_Kulkarni)",
+  "Igbo_(Public)",
+  "Ismaili_(Public)",
+  "Kannada_(Sri_Preston_Kulkarni)",
+  "Konkani_(Public)",
+  "Malayalam_(Sri_Preston_Kulkarni)",
+  "Marati_(Sri_Preston_Kulkarni)",
+  "Mom_(Public)",
+  "Nepalese_(Public)",
+  "Polish_(Public)",
+  "Portuguese_(Public)",
+  "Punjabi_(Sri_Preston_Kulkarni)",
+  "Registered_Nurse_(Public)",
+  "Sindhi_(Public)",
+  "Taiwanese_(Public)",
   "Tamil_(Sri_Preston_Kulkarni)",
+  "Telugu_(Sri_Preston_Kulkarni)",
+  "Turkish_(Public)",
   "Vietnamese_(Public)",
+  "Yoruba_(Public)",
+  "Zoroastrian_(Public)",
 ]
 
 def run():
