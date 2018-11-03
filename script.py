@@ -75,7 +75,8 @@ def voter_list(walk_universe):
   return filtered_universe[["van_id", "precinct", "is_kulkarni_community"]]
 
 def __sanitize_walk_universe(walk_universe):
-  cleaned_universe = walk_universe.rename(columns=VAN_LABELS_TO_OUR_LABELS)
+  cleaned_universe = walk_universe.rename(columns=lambda x: x.strip())
+  cleaned_universe = cleaned_universe.rename(columns=VAN_LABELS_TO_OUR_LABELS)
 
   return cleaned_universe
 
