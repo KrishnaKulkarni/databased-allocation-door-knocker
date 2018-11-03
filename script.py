@@ -62,11 +62,6 @@ def run():
   __write_csvs(voter_df, precincts)
   return [voter_df, precincts]
 
-def precinct_counts(voter_df):
-  kulkarni_voter_df = voter_df[voter_df.is_kulkarni_community]
-
-  return voter_df.groupby(['precinct']).agg(['count'])[['van_id']]
-
 def voter_list(walk_universe):
   sanitized_universe = __sanitize_walk_universe(walk_universe)
   augmented_universe = __augment_walk_universe(sanitized_universe)
@@ -81,6 +76,11 @@ def voter_list(walk_universe):
   return filtered_universe[
     ["van_id", "precinct", "is_kulkarni_community", "date_registered"]
   ]
+
+def precinct_counts(voter_df):
+  kulkarni_voter_df = voter_df[voter_df.is_kulkarni_community]
+
+  return voter_df.groupby(['precinct']).agg(['count'])[['van_id']]
 
 def __sanitize_walk_universe(walk_universe):
   cleaned_universe = walk_universe.rename(columns=lambda x: x.strip())
