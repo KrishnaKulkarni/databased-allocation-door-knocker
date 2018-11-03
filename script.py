@@ -3,8 +3,8 @@ import pandas
 CSV_NAME = "test_data.csv"
 FILTERS = {
   "min_age": 30,
-  "max_age": 50,
-  "zipcodes": ["77584", "77479"],
+  "max_age": 70,
+  "zipcodes": ["77459", "77581", "77584", "77584"],
 }
 
 def run():
@@ -12,8 +12,12 @@ def run():
 
   voter_df = pandas.read_csv(csv_name)
   voter_df = voter_list(voter_df)
+  precincts = precinct_counts(voter_df)
 
-  return voter_df
+  return [voter_df, precincts]
+
+def precinct_counts(voter_df):
+  return voter_df.groupby(['precinct']).agg(['count'])
 
 def voter_list(walk_universe):
   sanitized_universe = __sanitize_walk_universe(walk_universe)
@@ -29,8 +33,8 @@ def __sanitize_walk_universe(walk_universe):
   cleaned_universe = walk_universe.rename(
     columns={
     'Voter File VANID': 'van_id',
-    'Age': 'age', 'PrecinctName':
-    'precinct'
+    'Age': 'age',
+    'PrecinctName':'precinct',
     })
 
   return cleaned_universe
