@@ -16,7 +16,7 @@ FILTERS = {
   "zipcodes": None,
 }
 
-IS_KULKARNI_EXPANSION_LABELS = [
+IS_KULKARNI_COMMUNITY_LABELS = [
   "Arab_Christian_(Public)",
   "Bangladeshi_(Public)",
   "Bengali_(Sri_Preston_Kulkarni)",
@@ -59,7 +59,7 @@ def run():
   return [voter_df, precincts]
 
 def precinct_counts(voter_df):
-  kulkarni_voter_df = voter_df[voter_df.is_kulkarni_expansion]
+  kulkarni_voter_df = voter_df[voter_df.is_kulkarni_community]
 
   return kulkarni_voter_df.groupby(['precinct']).agg(['count'])[['van_id']]
 
@@ -72,7 +72,7 @@ def voter_list(walk_universe):
   __zipcode_filter(sanitized_universe)
   ]
 
-  return filtered_universe[["van_id", "precinct", "is_kulkarni_expansion"]]
+  return filtered_universe[["van_id", "precinct", "is_kulkarni_community"]]
 
 def __sanitize_walk_universe(walk_universe):
   cleaned_universe = walk_universe.rename(columns=VAN_LABELS_TO_OUR_LABELS)
@@ -80,12 +80,12 @@ def __sanitize_walk_universe(walk_universe):
   return cleaned_universe
 
 def __augment_walk_universe(walk_universe):
-  walk_universe["is_kulkarni_expansion"] = walk_universe.apply(__is_kulkarni_expansion, axis=1)
+  walk_universe["is_kulkarni_community"] = walk_universe.apply(__is_kulkarni_community, axis=1)
 
   return walk_universe
 
-def __is_kulkarni_expansion(row):
-  for header in IS_KULKARNI_EXPANSION_LABELS:
+def __is_kulkarni_community(row):
+  for header in IS_KULKARNI_COMMUNITY_LABELS:
     if __is_present_string(row[header]):
       return True
 
