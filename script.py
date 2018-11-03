@@ -1,6 +1,13 @@
 import pandas
 
-CSV_NAME = "test_data.csv"
+INPUT_CSV_NAME = "test_data.csv"
+
+VAN_LABELS_TO_OUR_LABELS = {
+  'Voter File VANID': 'van_id',
+  'Age': 'age',
+  'PrecinctName':'precinct',
+}
+
 FILTERS = {
   "min_age": 30,
   "max_age": None,
@@ -8,7 +15,7 @@ FILTERS = {
 }
 
 def run():
-  csv_name = CSV_NAME
+  csv_name = INPUT_CSV_NAME
 
   voter_df = pandas.read_csv(csv_name)
   voter_df = voter_list(voter_df)
@@ -30,12 +37,7 @@ def voter_list(walk_universe):
   return filtered_universe
 
 def __sanitize_walk_universe(walk_universe):
-  cleaned_universe = walk_universe.rename(
-    columns={
-    'Voter File VANID': 'van_id',
-    'Age': 'age',
-    'PrecinctName':'precinct',
-    })
+  cleaned_universe = walk_universe.rename(columns=VAN_LABELS_TO_OUR_LABELS)
 
   return cleaned_universe
 
