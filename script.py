@@ -67,7 +67,7 @@ def voter_list(walk_universe):
   sanitized_universe = __sanitize_walk_universe(walk_universe)
   augmented_universe = __augment_walk_universe(sanitized_universe)
 
-  filtered_universe = sanitized_universe[
+  filtered_universe = augmented_universe[
   __age_filter(sanitized_universe) & \
   __zipcode_filter(sanitized_universe)
   ]
