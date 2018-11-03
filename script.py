@@ -1,6 +1,6 @@
 import pandas
 
-INPUT_CSV_NAME = "test_data.csv"
+INPUT_CSV_NAME = "sample_data.csv"
 OUTPUT_VAN_IDS_CSV = "van_ids.csv"
 OUTPUT_PRECINCT_COUNTS_CSV = "precinct_counts.csv"
 
@@ -32,7 +32,9 @@ def run():
   return [voter_df, precincts]
 
 def precinct_counts(voter_df):
-  return voter_df.groupby(['precinct']).agg(['count'])[['van_id']]
+  kulkarni_voter_df = voter_df[voter_df.is_kulkarni_expansion]
+
+  return kulkarni_voter_df.groupby(['precinct']).agg(['count'])[['van_id']]
 
 def voter_list(walk_universe):
   sanitized_universe = __sanitize_walk_universe(walk_universe)
