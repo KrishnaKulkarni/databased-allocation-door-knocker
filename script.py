@@ -16,6 +16,11 @@ FILTERS = {
   "zipcodes": None,
 }
 
+IS_KULKARNI_EXPANSION_LABELS = [
+  "Tamil_(Sri_Preston_Kulkarni)",
+  "Vietnamese_(Public)",
+]
+
 def run():
   csv_name = INPUT_CSV_NAME
 
@@ -31,18 +36,34 @@ def precinct_counts(voter_df):
 
 def voter_list(walk_universe):
   sanitized_universe = __sanitize_walk_universe(walk_universe)
+  augmented_universe = __augment_walk_universe(sanitized_universe)
 
   filtered_universe = sanitized_universe[
   __age_filter(sanitized_universe) & \
   __zipcode_filter(sanitized_universe)
   ]
 
-  return filtered_universe
+  return filtered_universe[["van_id", "precinct", "is_kulkarni_expansion"]]
 
 def __sanitize_walk_universe(walk_universe):
   cleaned_universe = walk_universe.rename(columns=VAN_LABELS_TO_OUR_LABELS)
 
   return cleaned_universe
+
+def __augment_walk_universe(walk_universe):
+  walk_universe["is_kulkarni_expansion"] = walk_universe.apply(__is_kulkarni_expansion, axis=1)
+
+  return walk_universe
+
+def __is_kulkarni_expansion(row):
+  for header in IS_KULKARNI_EXPANSION_LABELS:
+    if __is_present_string(row[header]):
+      return True
+
+  return False
+
+def __is_present_string(value):
+  return isinstance(value, str) & bool(value)
 
 def __age_filter(walk_universe):
   min_age, max_age = FILTERS['min_age'], FILTERS['max_age']
