@@ -3,7 +3,7 @@ import pandas
 CSV_NAME = "test_data.csv"
 FILTERS = {
   "min_age": 30,
-  "max_age": 70,
+  "max_age": None,
   "zipcodes": ["77459", "77581", "77584", "77584"],
 }
 
@@ -40,8 +40,16 @@ def __sanitize_walk_universe(walk_universe):
   return cleaned_universe
 
 def __age_filter(walk_universe):
-  return (walk_universe.age >= FILTERS['min_age']) & \
-  (walk_universe.age <= FILTERS['max_age'])
+  min_age, max_age = FILTERS['min_age'], FILTERS['max_age']
+  universe_filter = walk_universe
+
+  if min_age is not None:
+    universe_filter = walk_universe.age >= min_age
+
+  if max_age is not None:
+    universe_filter = universe_filter & (walk_universe.age <= max_age)
+
+  return universe_filter
 
 def __zipcode_filter(walk_universe):
   return walk_universe.mZip5.isin(FILTERS["zipcodes"])
