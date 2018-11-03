@@ -17,7 +17,7 @@ def run():
   return [voter_df, precincts]
 
 def precinct_counts(voter_df):
-  return voter_df.groupby(['precinct']).agg(['count'])
+  return voter_df.groupby(['precinct']).agg(['count'])[['van_id']]
 
 def voter_list(walk_universe):
   sanitized_universe = __sanitize_walk_universe(walk_universe)
