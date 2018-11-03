@@ -11,7 +11,7 @@ VAN_LABELS_TO_OUR_LABELS = {
 }
 
 FILTERS = {
-  "min_age": 30,
+  "min_age": None,
   "max_age": None,
   "zipcodes": None,
 }
