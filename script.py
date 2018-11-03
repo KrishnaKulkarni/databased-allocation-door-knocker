@@ -1,6 +1,8 @@
 import pandas
 
 INPUT_CSV_NAME = "test_data.csv"
+OUTPUT_VAN_IDS_CSV = "van_ids.csv"
+OUTPUT_PRECINCT_COUNTS_CSV = "precinct_counts.csv"
 
 VAN_LABELS_TO_OUR_LABELS = {
   'Voter File VANID': 'van_id',
@@ -21,6 +23,7 @@ def run():
   voter_df = voter_list(voter_df)
   precincts = precinct_counts(voter_df)
 
+  __write_csvs(voter_df, precincts)
   return [voter_df, precincts]
 
 def precinct_counts(voter_df):
@@ -63,4 +66,8 @@ def __zipcode_filter(walk_universe):
 
 def __noop_filter(walk_universe):
   return walk_universe.van_id > 0
+
+def __write_csvs(voter_ids_df, voter_counts):
+  voter_ids_df.to_csv(OUTPUT_VAN_IDS_CSV)
+  voter_counts.to_csv(OUTPUT_PRECINCT_COUNTS_CSV)
 
