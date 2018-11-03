@@ -1,6 +1,7 @@
 import pandas
+import datetime
 
-INPUT_CSV_NAME = "sample_data.csv"
+INPUT_CSV_NAME = "sample_data2.csv"
 OUTPUT_VAN_IDS_CSV = "van_ids.csv"
 OUTPUT_PRECINCT_COUNTS_CSV = "precinct_counts.csv"
 
@@ -8,13 +9,15 @@ VAN_LABELS_TO_OUR_LABELS = {
   'Voter File VANID': 'van_id',
   'Age': 'age',
   'PrecinctName':'precinct',
+  "DateReg": "date_registered",
 }
 
 FILTERS = {
   "min_age": None,
   "max_age": None,
   "zipcodes": None,
-  "is_kulkarni_community": True,
+  "is_kulkarni_community": False,
+  "registered_after": None, # How many days ago
 }
 
 IS_KULKARNI_COMMUNITY_LABELS = [
@@ -71,14 +74,20 @@ def voter_list(walk_universe):
   filtered_universe = augmented_universe[
   __age_filter(sanitized_universe) & \
   __zipcode_filter(sanitized_universe) & \
-  __is_kulkarni_filter(sanitized_universe)
+  __is_kulkarni_filter(sanitized_universe) & \
+  __registered_date_filter(sanitized_universe)
   ]
 
-  return filtered_universe[["van_id", "precinct", "is_kulkarni_community"]]
+  return filtered_universe[
+    ["van_id", "precinct", "is_kulkarni_community", "date_registered"]
+  ]
 
 def __sanitize_walk_universe(walk_universe):
   cleaned_universe = walk_universe.rename(columns=lambda x: x.strip())
   cleaned_universe = cleaned_universe.rename(columns=VAN_LABELS_TO_OUR_LABELS)
+  cleaned_universe["date_registered"] = pandas.to_datetime(
+    cleaned_universe["date_registered"]
+  )
 
   return cleaned_universe
 
@@ -122,6 +131,17 @@ def __is_kulkarni_filter(walk_universe):
     return walk_universe.is_kulkarni_community
   else:
     return __noop_filter(walk_universe)
+
+def __registered_date_filter(walk_universe):
+  days_to_go_back = FILTERS["registered_after"]
+
+  if days_to_go_back is not None:
+    return walk_universe.date_registered > __date_days_ago(days_to_go_back)
+  else:
+    return __noop_filter(walk_universe)
+
+def __date_days_ago(days_ago):
+  return datetime.datetime.now() - datetime.timedelta(days=days_ago)
 
 def __noop_filter(walk_universe):
   return walk_universe.van_id > 0
