@@ -14,6 +14,7 @@ FILTERS = {
   "min_age": None,
   "max_age": None,
   "zipcodes": None,
+  "is_kulkarni_community": True,
 }
 
 IS_KULKARNI_COMMUNITY_LABELS = [
@@ -61,7 +62,7 @@ def run():
 def precinct_counts(voter_df):
   kulkarni_voter_df = voter_df[voter_df.is_kulkarni_community]
 
-  return kulkarni_voter_df.groupby(['precinct']).agg(['count'])[['van_id']]
+  return voter_df.groupby(['precinct']).agg(['count'])[['van_id']]
 
 def voter_list(walk_universe):
   sanitized_universe = __sanitize_walk_universe(walk_universe)
@@ -69,7 +70,8 @@ def voter_list(walk_universe):
 
   filtered_universe = augmented_universe[
   __age_filter(sanitized_universe) & \
-  __zipcode_filter(sanitized_universe)
+  __zipcode_filter(sanitized_universe) & \
+  __is_kulkarni_filter(sanitized_universe)
   ]
 
   return filtered_universe[["van_id", "precinct", "is_kulkarni_community"]]
@@ -112,6 +114,12 @@ def __zipcode_filter(walk_universe):
 
   if zipcodes is not None:
     return walk_universe.mZip5.isin(zipcodes)
+  else:
+    return __noop_filter(walk_universe)
+
+def __is_kulkarni_filter(walk_universe):
+  if FILTERS["is_kulkarni_community"]:
+    return walk_universe.is_kulkarni_community
   else:
     return __noop_filter(walk_universe)
 
