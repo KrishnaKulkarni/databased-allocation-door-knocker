@@ -95,8 +95,9 @@ def voter_list(walk_universe):
   })
   union = s1.intersection() | s2.intersection()
   filtered_universe = augmented_universe[union]
+  deduplicated_universe = filtered_universe.drop_duplicates(["mAddress", "mZip5"])
 
-  return filtered_universe
+  return deduplicated_universe
   # return filtered_universe[
   #   ["van_id", "precinct", "is_kulkarni_community",
   #   "is_selected_community", "date_registered"]
