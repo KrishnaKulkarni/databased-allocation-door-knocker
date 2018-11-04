@@ -18,6 +18,7 @@ FILTERS = {
   "zipcodes": None,
   "is_kulkarni_community": False,
   "registered_after": None, # How many days ago
+  "community_groups": ["Mom_(Public)"],
 }
 
 IS_KULKARNI_COMMUNITY_LABELS = [
@@ -70,11 +71,12 @@ def voter_list(walk_universe):
   __age_filter(sanitized_universe) & \
   __zipcode_filter(sanitized_universe) & \
   __is_kulkarni_filter(sanitized_universe) & \
-  __registered_date_filter(sanitized_universe)
+  __registered_date_filter(sanitized_universe) & \
+  __community_group_filter(sanitized_universe)
   ]
 
   return filtered_universe[
-    ["van_id", "precinct", "is_kulkarni_community", "date_registered"]
+    ["van_id", "precinct", "is_kulkarni_community", "is_selected_community", "date_registered"]
   ]
 
 def precinct_counts(voter_df):
@@ -93,11 +95,23 @@ def __sanitize_walk_universe(walk_universe):
 
 def __augment_walk_universe(walk_universe):
   walk_universe["is_kulkarni_community"] = walk_universe.apply(__is_kulkarni_community, axis=1)
+  walk_universe["is_selected_community"] = walk_universe.apply(__is_selected_community, axis=1)
 
   return walk_universe
 
 def __is_kulkarni_community(row):
-  for header in IS_KULKARNI_COMMUNITY_LABELS:
+  return __marked_for_at_least_one_column(row, IS_KULKARNI_COMMUNITY_LABELS)
+
+def __is_selected_community(row):
+  community_groups = FILTERS["community_groups"]
+
+  if community_groups is not None:
+    return __marked_for_at_least_one_column(row, community_groups)
+  else:
+    return False
+
+def __marked_for_at_least_one_column(row, labels):
+  for header in labels:
     if __is_present_string(row[header]):
       return True
 
@@ -142,6 +156,14 @@ def __registered_date_filter(walk_universe):
 
 def __date_days_ago(days_ago):
   return datetime.datetime.now() - datetime.timedelta(days=days_ago)
+
+def __community_group_filter(walk_universe):
+  community_groups = FILTERS["community_groups"]
+
+  if community_groups is not None:
+    return walk_universe.is_selected_community
+  else:
+    return __noop_filter(walk_universe)
 
 def __noop_filter(walk_universe):
   return walk_universe.van_id > 0
