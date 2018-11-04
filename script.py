@@ -1,5 +1,6 @@
 import pandas
 import datetime
+from functools import reduce
 
 INPUT_CSV_NAME = "sample_data2.csv"
 PRECINCT_DATA_CSV_NAME = "sample_precinct_data.csv"
@@ -61,35 +62,35 @@ def voter_list(walk_universe):
   sanitized_universe = __sanitize_walk_universe(walk_universe)
   augmented_universe = __augment_walk_universe(sanitized_universe)
 
-  s1 = Search(augmented_universe, {
-    "min_age": None,
-    "max_age": None,
-    "zipcodes": None,
-    "is_kulkarni_community": True,
-    "registered_after": None,
-    "community_groups": None,
-    "excluded_precincts": None,
-    "CivRace": None,
-  })
-  s2 = Search(augmented_universe, {
-    "min_age": None,
-    "max_age": None,
-    "zipcodes": None,
-    "is_kulkarni_community": False,
-    "registered_after": None,
-    "community_groups": None,
-    "excluded_precincts": ["36", "2157"],
-    "CivRace": ["Black-Low"],
-  })
-  union = s1.intersection() | s2.intersection()
-  filtered_universe = augmented_universe[union]
-  deduplicated_universe = filtered_universe.drop_duplicates(["mAddress", "mZip5"])
+  filter_sets = [
+    {
+      "min_age": None,
+      "max_age": None,
+      "zipcodes": None,
+      "is_kulkarni_community": True,
+      "registered_after": None,
+      "community_groups": None,
+      "excluded_precincts": None,
+      "CivRace": None,
+    },
+    {
+      "min_age": 70,
+      "max_age": None,
+      "zipcodes": None,
+      "is_kulkarni_community": False,
+      "registered_after": None,
+      "community_groups": None,
+      "excluded_precincts": None,
+      "CivRace": None,
+    },
+  ]
+  intersections = map(lambda x: Search(augmented_universe, x).intersection(), filter_sets)
+  union = reduce(lambda x, y: x | y, intersections)
 
-  return deduplicated_universe
-  # return filtered_universe[
-  #   ["van_id", "precinct", "is_kulkarni_community",
-  #   "is_selected_community", "date_registered"]
-  # ]
+  filtered_universe = augmented_universe[union]
+  # filtered_universe = filtered_universe.drop_duplicates(["mAddress", "mZip5"])
+
+  return filtered_universe
 
 def precinct_counts(voter_df):
   kulkarni_voter_df = voter_df[voter_df.is_kulkarni_community]
