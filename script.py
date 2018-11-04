@@ -68,15 +68,12 @@ def voter_list(walk_universe):
   augmented_universe = __augment_walk_universe(sanitized_universe)
 
   filtered_universe = augmented_universe[
-  __age_filter(sanitized_universe) & \
-  __zipcode_filter(sanitized_universe) & \
-  __is_kulkarni_filter(sanitized_universe) & \
-  __registered_date_filter(sanitized_universe) & \
-  __community_group_filter(sanitized_universe)
+    Search(augmented_universe, FILTERS).intersection()
   ]
 
   return filtered_universe[
-    ["van_id", "precinct", "is_kulkarni_community", "is_selected_community", "date_registered"]
+    ["van_id", "precinct", "is_kulkarni_community",
+    "is_selected_community", "date_registered"]
   ]
 
 def precinct_counts(voter_df):
@@ -120,55 +117,66 @@ def __marked_for_at_least_one_column(row, labels):
 def __is_present_string(value):
   return isinstance(value, str) & bool(value)
 
-def __age_filter(walk_universe):
-  min_age, max_age = FILTERS['min_age'], FILTERS['max_age']
-  universe_filter = __noop_filter(walk_universe)
-
-  if min_age is not None:
-    universe_filter = walk_universe.age >= min_age
-
-  if max_age is not None:
-    universe_filter = universe_filter & (walk_universe.age <= max_age)
-
-  return universe_filter
-
-def __zipcode_filter(walk_universe):
-  zipcodes = FILTERS["zipcodes"]
-
-  if zipcodes is not None:
-    return walk_universe.mZip5.isin(zipcodes)
-  else:
-    return __noop_filter(walk_universe)
-
-def __is_kulkarni_filter(walk_universe):
-  if FILTERS["is_kulkarni_community"]:
-    return walk_universe.is_kulkarni_community
-  else:
-    return __noop_filter(walk_universe)
-
-def __registered_date_filter(walk_universe):
-  days_to_go_back = FILTERS["registered_after"]
-
-  if days_to_go_back is not None:
-    return walk_universe.date_registered > __date_days_ago(days_to_go_back)
-  else:
-    return __noop_filter(walk_universe)
-
-def __date_days_ago(days_ago):
-  return datetime.datetime.now() - datetime.timedelta(days=days_ago)
-
-def __community_group_filter(walk_universe):
-  community_groups = FILTERS["community_groups"]
-
-  if community_groups is not None:
-    return walk_universe.is_selected_community
-  else:
-    return __noop_filter(walk_universe)
-
-def __noop_filter(walk_universe):
-  return walk_universe.van_id > 0
-
 def __write_csvs(voter_ids_df, voter_counts):
   voter_ids_df.to_csv(OUTPUT_VAN_IDS_CSV)
   voter_counts.to_csv(OUTPUT_PRECINCT_COUNTS_CSV)
 
+class Search:
+  def __init__(self, walk_universe, filters):
+    self.walk_universe = walk_universe
+    self.filters = filters
+
+  def intersection(self):
+    return self.__age_filter() & \
+      self.__zipcode_filter() & \
+      self.__is_kulkarni_filter() & \
+      self.__registered_date_filter() & \
+      self.__community_group_filter()
+
+  def __noop_filter(self):
+    return self.walk_universe.van_id > 0
+
+  def __age_filter(self):
+    min_age, max_age = self.filters['min_age'], self.filters['max_age']
+    universe_filter = self.__noop_filter()
+
+    if min_age is not None:
+      universe_filter = self.walk_universe.age >= min_age
+
+    if max_age is not None:
+      universe_filter = universe_filter & (self.walk_universe.age <= max_age)
+
+    return universe_filter
+
+  def __zipcode_filter(self):
+    zipcodes = self.filters["zipcodes"]
+
+    if zipcodes is not None:
+      return self.walk_universe.mZip5.isin(zipcodes)
+    else:
+      return self.__noop_filter()
+
+  def __is_kulkarni_filter(self):
+    if self.filters["is_kulkarni_community"]:
+      return self.walk_universe.is_kulkarni_community
+    else:
+      return self.__noop_filter()
+
+  def __registered_date_filter(self):
+    days_to_go_back = self.filters["registered_after"]
+
+    if days_to_go_back is not None:
+      return self.walk_universe.date_registered > self.__date_days_ago(days_to_go_back)
+    else:
+      return self.__noop_filter()
+
+  def __date_days_ago(self, days_ago):
+    return datetime.datetime.now() - datetime.timedelta(days=days_ago)
+
+  def __community_group_filter(self):
+    community_groups = self.filters["community_groups"]
+
+    if community_groups is not None:
+      return self.walk_universe.is_selected_community
+    else:
+      return self.__noop_filter()
