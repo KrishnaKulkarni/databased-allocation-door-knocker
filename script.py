@@ -13,12 +13,12 @@ VAN_LABELS_TO_OUR_LABELS = {
 }
 
 FILTERS = {
-  "min_age": None,
+  "min_age": 70,
   "max_age": None,
   "zipcodes": None,
   "is_kulkarni_community": False,
-  "registered_after": None, # How many days ago
-  "community_groups": ["Mom_(Public)"],
+  "registered_after": 18*365, # How many days ago
+  "community_groups": None,
 }
 
 IS_KULKARNI_COMMUNITY_LABELS = [
@@ -67,9 +67,24 @@ def voter_list(walk_universe):
   sanitized_universe = __sanitize_walk_universe(walk_universe)
   augmented_universe = __augment_walk_universe(sanitized_universe)
 
-  filtered_universe = augmented_universe[
-    Search(augmented_universe, FILTERS).intersection()
-  ]
+  s1 = Search(augmented_universe, {
+    "min_age": 70,
+    "max_age": None,
+    "zipcodes": None,
+    "is_kulkarni_community": False,
+    "registered_after": None,
+    "community_groups": None,
+  })
+  s2 = Search(augmented_universe, {
+    "min_age": None,
+    "max_age": 33,
+    "zipcodes": None,
+    "is_kulkarni_community": False,
+    "registered_after": None,
+    "community_groups": None,
+  })
+  union = s1.intersection() | s2.intersection()
+  filtered_universe = augmented_universe[union]
 
   return filtered_universe[
     ["van_id", "precinct", "is_kulkarni_community",
