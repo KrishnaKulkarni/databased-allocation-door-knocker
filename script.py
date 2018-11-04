@@ -73,9 +73,10 @@ def voter_list(walk_universe):
     "min_age": None,
     "max_age": None,
     "zipcodes": None,
-    "is_kulkarni_community": False,
+    "is_kulkarni_community": True,
     "registered_after": None,
     "community_groups": None,
+    "excluded_precincts": None,
   })
   s2 = Search(augmented_universe, {
     "min_age": None,
@@ -84,6 +85,7 @@ def voter_list(walk_universe):
     "is_kulkarni_community": False,
     "registered_after": None,
     "community_groups": None,
+    "excluded_precincts": ["36", "2157"],
   })
   union = s1.intersection() | s2.intersection()
   filtered_universe = augmented_universe[union]
@@ -148,7 +150,8 @@ class Search:
       self.__zipcode_filter() & \
       self.__is_kulkarni_filter() & \
       self.__registered_date_filter() & \
-      self.__community_group_filter()
+      self.__community_group_filter() & \
+      self.__excluded_precinct_filter()
 
   def __noop_filter(self):
     return self.walk_universe.van_id > 0
@@ -197,3 +200,12 @@ class Search:
       return self.walk_universe.is_selected_community
     else:
       return self.__noop_filter()
+
+  def __excluded_precinct_filter(self):
+    precincts = self.filters["excluded_precincts"]
+
+    if precincts is not None:
+      return ~self.walk_universe.precinct.isin(precincts)
+    else:
+      return self.__noop_filter()
+
