@@ -2,6 +2,7 @@ import pandas
 import datetime
 
 INPUT_CSV_NAME = "sample_data2.csv"
+PRECINCT_DATA_CSV_NAME = "sample_precinct_data.csv"
 OUTPUT_VAN_IDS_CSV = "van_ids.csv"
 OUTPUT_PRECINCT_COUNTS_CSV = "precinct_counts.csv"
 
@@ -59,6 +60,9 @@ def run():
   csv_name = INPUT_CSV_NAME
 
   voter_df = pandas.read_csv(csv_name)
+  precinct_df = pandas.read_csv(PRECINCT_DATA_CSV_NAME)[["Precinct", "2016 % Turnout", "%H"]]
+  voter_df = voter_df.merge(precinct_df, left_on="PrecinctName", right_on="Precinct", how="left", indicator=True)
+
   voter_df = voter_list(voter_df)
   precincts = precinct_counts(voter_df)
 
