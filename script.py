@@ -77,6 +77,7 @@ def voter_list(walk_universe):
     "registered_after": None,
     "community_groups": None,
     "excluded_precincts": None,
+    "CivRace": None,
   })
   s2 = Search(augmented_universe, {
     "min_age": None,
@@ -86,6 +87,7 @@ def voter_list(walk_universe):
     "registered_after": None,
     "community_groups": None,
     "excluded_precincts": ["36", "2157"],
+    "CivRace": ["Black-Low"],
   })
   union = s1.intersection() | s2.intersection()
   filtered_universe = augmented_universe[union]
@@ -151,7 +153,8 @@ class Search:
       self.__is_kulkarni_filter() & \
       self.__registered_date_filter() & \
       self.__community_group_filter() & \
-      self.__excluded_precinct_filter()
+      self.__excluded_precinct_filter() & \
+      self.__civrace_filter()
 
   def __noop_filter(self):
     return self.walk_universe.van_id > 0
@@ -209,3 +212,10 @@ class Search:
     else:
       return self.__noop_filter()
 
+  def __civrace_filter(self):
+    civ_races = self.filters["CivRace"]
+
+    if civ_races is not None:
+      return self.walk_universe.CivRace.isin(civ_races)
+    else:
+      return self.__noop_filter()
