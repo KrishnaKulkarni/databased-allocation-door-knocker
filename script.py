@@ -12,14 +12,7 @@ VAN_LABELS_TO_OUR_LABELS = {
   "DateReg": "date_registered",
 }
 
-FILTERS = {
-  "min_age": 70,
-  "max_age": None,
-  "zipcodes": None,
-  "is_kulkarni_community": False,
-  "registered_after": 18*365, # How many days ago
-  "community_groups": None,
-}
+SELECTED_COMMUNITY_GROUPS = None
 
 IS_KULKARNI_COMMUNITY_LABELS = [
   # "Arab_Christian_(Public)",
@@ -77,7 +70,7 @@ def voter_list(walk_universe):
   augmented_universe = __augment_walk_universe(sanitized_universe)
 
   s1 = Search(augmented_universe, {
-    "min_age": 70,
+    "min_age": None,
     "max_age": None,
     "zipcodes": None,
     "is_kulkarni_community": False,
@@ -86,7 +79,7 @@ def voter_list(walk_universe):
   })
   s2 = Search(augmented_universe, {
     "min_age": None,
-    "max_age": 33,
+    "max_age": None,
     "zipcodes": None,
     "is_kulkarni_community": False,
     "registered_after": None,
@@ -124,7 +117,7 @@ def __is_kulkarni_community(row):
   return __marked_for_at_least_one_column(row, IS_KULKARNI_COMMUNITY_LABELS)
 
 def __is_selected_community(row):
-  community_groups = FILTERS["community_groups"]
+  community_groups = SELECTED_COMMUNITY_GROUPS
 
   if community_groups is not None:
     return __marked_for_at_least_one_column(row, community_groups)
